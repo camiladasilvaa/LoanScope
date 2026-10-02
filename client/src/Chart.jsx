@@ -13,15 +13,15 @@ export default function Chart({data}) {
           bottom: 50,
         }}
       >
-        <CartesianGrid strokeDasharray="3 3" />
+        <CartesianGrid />
         <XAxis
           dataKey="month"
-          label={{ value: 'Month', position: 'insideBottom', offset: -10 }}
+          label={{ value: 'Month', position: 'insideBottom', offset: -20 }}
         />
         <YAxis
           width={90}
-          tickFormatter={(value) => `$${value.toLocaleString()}`}
-          label={{ value: 'Balance', angle: -90, position: 'insideLeft', offset: -10 }}
+          tickFormatter={(value) => `$${value.toLocaleString()}`} // https://recharts.github.io/en-US/api/XAxis/#tickFormatter
+          label={{ value: 'Balance', angle: -90, position: 'insideLeft', offset: -20 }}
         />
         <Line type="monotone" dataKey="balance" dot={false} stroke="#662dbb" strokeWidth={2} />
       </LineChart>
