@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { minPayment } from '../../shared/engine'
+import InputField from './InputField.jsx'
+// import Schedule from './Schedule.jsx'
+import { calculateSchedule } from '../../shared/engine'
+import Chart from './Chart.jsx'
 
 export default function App() {
+  
   const [principal, setPrincipal] = useState('')
   const [interest, setInterest] = useState('')
   const [monthly, setMonthly] = useState('')
@@ -43,7 +48,7 @@ export default function App() {
   // monthly payment
   let monthlyError = ''
   if (!monthlyEmpty) {
-    if (Number.isNaN(monthlyNum) || monthly.trim() === '') {
+    if (Number.isNaN(monthlyNum)) {
       monthlyError = 'Please enter a number for the monthly payment.'
     } 
     // need to check that principal and interest rate are valid data (no error was created)
@@ -55,12 +60,12 @@ export default function App() {
         monthlyError = `The monthly payment must be between $1 and $${greaterValue.toLocaleString()}.`
       }
       else if (monthlyNum < minPayment(principalNum, interestNum)) {
-        monthlyError = `With a monthly payment of $${monthlyNum.toLocaleString()}, the loan would never be paid off at that rate. Minimum: $${minPayment(principalNum, interestNum).toFixed(2)}.`
+        monthlyError = `With a monthly payment of $${monthlyNum.toLocaleString()}, the payment is less than or equal to the monthly interest accrued on the starting principal. The loan would never be paid off at that rate. Minimum: $${minPayment(principalNum, interestNum).toFixed(2)}.`
       }
     
     }
   }
-
+  
 
   const handlePrincipalChange = (e) => {
     setPrincipal(e.target.value);
@@ -73,7 +78,66 @@ export default function App() {
   const handleMonthlyChange = (e) => {
     setMonthly(e.target.value);
   };
+  
+  // const result = calculateSchedule(1000, 12, 400, new Date())
+  // console.log(result.payoffDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: '2-digit', year: 'numeric' }))
 
+
+  let inputValid = false
+  // need a variable to store whether all 3 inputs are valid
+  if (principalError === '' && interestError === '' && monthlyError === '' && !principalEmpty && !interestEmpty && !monthlyEmpty) {
+    inputValid = true
+  }
+
+  let schedule = null
+
+  if (inputValid) {
+    schedule = calculateSchedule(principalNum, interestNum, monthlyNum, new Date())
+  }
+
+  // console.log(schedule)
+
+  let payOff = ''
+  let terms = ''
+  let intPaid = ''
+
+  // build data for chart
+  let chartData = []
+
+  if (schedule && schedule.schedule) {
+    if (schedule.payoffDate) {
+      payOff = schedule.payoffDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: '2-digit', year: 'numeric' })
+    }
+    else {
+      payOff = 'Exceeds 100 years.'
+    }
+
+    if (schedule.totalTerm) {
+      // need to extract months and years
+      const months = schedule.totalTerm % 12 // whole number of months
+      const years = Math.floor(schedule.totalTerm / 12) // round down
+      terms = `${years} years and ${months} months`
+    }
+
+    // formatting sources: https://www.w3schools.com/jsref/jsref_tolocalestring.asp, https://www.w3schools.com/jsref/jsref_tolocalestring_number.asp
+    if (schedule.cumulativeInterest) {
+      intPaid = (schedule.cumulativeInterest / 100).toLocaleString(undefined, {style: 'currency', currency: "USD"}) // need to divide because amount is in cents, need dollars
+    }
+
+    // build data array for chart
+    chartData.push({month: 0, balance: principalNum}) // first entry which is the initial principal
+
+    // balance over month, each row has a month and a balance
+    for(let i = 0; i<schedule.schedule.length; i++){
+      // construct row
+      const row = schedule.schedule[i]
+      chartData.push({month: row.month, balance: row.balance/100}) // need to divide because it's in cents
+    }
+
+  }
+
+  console.log(chartData.length)
+  
   return (
     <main>
  
@@ -81,39 +145,64 @@ export default function App() {
     
       <div className='input-container'>
 
-        <div className='input'>
-          <label htmlFor="principal">Starting Principal</label>
-          <input
-            id="principal"
-            type="text"
-            value={principal}
-            onChange={handlePrincipalChange}
-          />
-          <p>{principalError}</p>
-        </div>
-
-        <div className='input'>
-          <label htmlFor="interest">Interest Rate</label>
-          <input
-            id="interest"
-            type="text"
-            value={interest}
-            onChange={handleInterestChange}
-          />
-          <p>{interestError}</p>
-        </div>
-
-        <div className='input'>
-          <label htmlFor="monthly">Monthly Payment</label>
-          <input
-            id="monthly"
-            type="text"
-            value={monthly}
-            onChange={handleMonthlyChange}
-          />
-          <p>{monthlyError}</p>
-        </div>
+        <InputField
+          id="principal"
+          label="Starting Principal"
+          value={principal}
+          onChange={handlePrincipalChange}
+          error={principalError}
+        />
         
+        <InputField
+          id="interest"
+          label="Annual Interest Rate"
+          value={interest}
+          onChange={handleInterestChange}
+          error={interestError}
+        />
+
+        <InputField
+          id="monthly"
+          label="Monthly Payment"
+          value={monthly}
+          onChange={handleMonthlyChange}
+          error={monthlyError}
+        />
+        
+      </div>
+
+      <div className='chart-container'>
+
+        {schedule && schedule.schedule && schedule.exceededMonths && (
+          <p style={{ color: 'red' }}>{schedule.error}</p>
+        )}
+        
+        <div className='headline-container'>
+          <div className='headline-value'>
+            <h3>Payoff Date</h3>
+            <p>{payOff}</p>
+          </div>
+
+          <div className='headline-value'>
+            <h3>Total Terms</h3>
+            <p>{terms}</p>
+            
+          </div>
+
+          <div className='headline-value'>
+            <h3>Total Interest Paid</h3>
+            <p>{intPaid}</p>
+          
+          </div>
+        
+        </div>
+
+      </div>
+
+      <div className='chart-container'>
+        {schedule && schedule.schedule && (
+          <Chart data={chartData}></Chart>
+        )}
       </div>
    
       
