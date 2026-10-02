@@ -185,5 +185,21 @@
 
 .chart-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1300px;
+}
+
+.schedule-table {
+  max-height: 400px;
+  overflow-y: auto;
+  max-width: 1300px;
+  width: 100%;
+
+}
+
+.schedule-table table {
+  width: 100%;
+}
+
+.schedule-table table tr {
+  text-align: left;
 }

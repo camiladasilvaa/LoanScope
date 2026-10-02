@@ -3,14 +3,14 @@ import { Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart } fro
 // template from https://recharts.github.io/en-US/examples/SimpleLineChart/, https://www.geeksforgeeks.org/reactjs/create-a-line-chart-using-recharts-in-reactjs/
 export default function Chart({data}) {
   return (
-    <ResponsiveContainer width="100%" height={400}>
+    <ResponsiveContainer width="100%" height={500}>
       <LineChart
         data={data}
         margin={{
           top: 5,
-          right: 50,
-          left: 50,
-          bottom: 50,
+          right: 20,
+          left: 40,
+          bottom: 20,
         }}
       >
         <CartesianGrid />

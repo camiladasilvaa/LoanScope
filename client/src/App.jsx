@@ -4,6 +4,8 @@ import InputField from './InputField.jsx'
 // import Schedule from './Schedule.jsx'
 import { calculateSchedule } from '../../shared/engine'
 import Chart from './Chart.jsx'
+import Table from './Table.jsx'
+import './App.css'
 
 export default function App() {
   
@@ -122,6 +124,7 @@ export default function App() {
     // formatting sources: https://www.w3schools.com/jsref/jsref_tolocalestring.asp, https://www.w3schools.com/jsref/jsref_tolocalestring_number.asp
     if (schedule.cumulativeInterest) {
       intPaid = (schedule.cumulativeInterest / 100).toLocaleString(undefined, {style: 'currency', currency: "USD"}) // need to divide because amount is in cents, need dollars
+      // undefined for portability
     }
 
     // build data array for chart
@@ -136,7 +139,12 @@ export default function App() {
 
   }
 
-  console.log(chartData.length)
+  //console.log(chartData.length)
+
+  // for the expandable panel, i was going to add a button with an onClick function that would make the panel show up
+  // but i found this:https://dev.to/jordanfinners/creating-a-collapsible-section-with-nothing-but-html-4ip9
+  // using the summary and details tag in html
+  // https://www.w3schools.com/TAGs/tag_summary.asp
   
   return (
     <main>
@@ -196,14 +204,25 @@ export default function App() {
           </div>
         
         </div>
-
-      </div>
-
-      <div className='chart-container'>
+  
         {schedule && schedule.schedule && (
           <Chart data={chartData}></Chart>
         )}
+
       </div>
+
+
+      {schedule && schedule.schedule && (
+        <div className='table-container'>
+          <details>
+            <summary>Schedule</summary>
+            <div className='schedule-table'>
+              <Table data={schedule.schedule}></Table>
+            </div>
+          </details>
+          
+        </div>
+      )}
    
       
     </main>
