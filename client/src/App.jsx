@@ -6,6 +6,7 @@ import { calculateSchedule } from '../../shared/engine'
 import Chart from './Chart.jsx'
 import Table from './Table.jsx'
 import './App.css'
+import Share from './Share.jsx'
 
 // validating URL parameters - REQ-21
 // reusing logic from input validation
@@ -298,6 +299,13 @@ export default function App() {
           </div>
         
         </div>
+        
+        {inputValid && (
+          <div className='share-container'>
+            <Share principal={principal} apr={interest} monthly={monthly}></Share>
+          </div>
+        )}
+        
   
         {schedule && schedule.schedule && (
           <Chart data={chartData}></Chart>

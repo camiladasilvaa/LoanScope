@@ -203,3 +203,13 @@
 .schedule-table table tr {
   text-align: left;
 }
+
+.headline-container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.share-container {
+  margin-bottom: 15px;
+}
