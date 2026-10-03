@@ -7,11 +7,106 @@ import Chart from './Chart.jsx'
 import Table from './Table.jsx'
 import './App.css'
 
-export default function App() {
+// validating URL parameters - REQ-21
+// reusing logic from input validation
+
+// principal
+function checkPrincipalURL(principal) {
+  if (principal === null || principal.trim() === '' ) {
+    return ''
+  }
+  const principalNum = Number(principal)
+  // check if input is number
+  if (Number.isNaN(principalNum)) {
+    return 'Please enter a number for the starting principal.'
+  } 
+  if (principalNum < 1 || principalNum > 100000000) {
+    return 'The starting principal must be between $1 to $100,000,000.'
+  }
+  return ''
+}
+
+// interest/apr
+function checkAPRURL(apr) {
+  if (apr === null || apr.trim() === '') {
+    return ''
+  }
+  const aprNum = Number(apr)
+  if (Number.isNaN(aprNum)) {
+      return 'Please enter a number for the interest rate.'
+    } 
+  else if (aprNum < 0 || aprNum > 40) {
+    return 'The interest rate must be between 0% to 40%.'
+  }
+  return ''
+}
+
+// monthly
+function checkMonthlyURL(monthly, principal, interest) {
+  if (monthly === null || monthly.trim() === '') {
+    return ''
+  }
+
+  const monthlyNum = Number(monthly)
+
+  if (Number.isNaN(monthlyNum)) {
+    return 'Please enter a number for the monthly payment.'
+  } 
+
+  // need to check that principal and interest rate are valid data
+
+  if (checkPrincipalURL(principal) != '' || checkAPRURL(interest) != '') {
+    return ''
+  }
+
+  if (interest.trim() === '' || principal.trim() === '') {
+    return ''
+  }
+
+  const principalNum = Number(principal)
+  const interestNum = Number(interest)
+  const greaterValue = Math.max(1000000, minPayment(principalNum, interestNum)*3)
+
+  if (monthlyNum < 1 || monthlyNum > greaterValue) {
+    return `The monthly payment must be between $1 and $${greaterValue.toLocaleString()}.`
+  }
+  else if (monthlyNum < minPayment(principalNum, interestNum)) {
+    return `With a monthly payment of $${monthlyNum.toLocaleString()}, the payment is less than or equal to the monthly interest accrued on the starting principal. The loan would never be paid off at that rate. Minimum: $${minPayment(principalNum, interestNum).toFixed(2)}.`
+  }
+
+  return ''
   
-  const [principal, setPrincipal] = useState('')
-  const [interest, setInterest] = useState('')
-  const [monthly, setMonthly] = useState('')
+}
+
+export default function App() {
+
+  // using URLSearchParams for 3.5
+
+  // using these templates
+  // https://stackoverflow.com/questions/56111914/how-to-read-url-parameters-within-component-in-react-js
+  // https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams
+
+  const windowUrl = window.location.search;
+  const searchParams = new URLSearchParams(windowUrl);
+  //console.log(searchParams.get('principal'), searchParams.get('apr'), searchParams.get('monthly'))
+
+  // forgot how to use the ternary operator: https://www.w3schools.com/js/js_if_ternary.asp
+  // safety default - ''
+  // if the check functions return a '', set the variable to the validated url
+
+  // principal 
+  const urlPrincipal = searchParams.get('principal') ?? ''
+  const urlAPR = searchParams.get('apr') ?? ''
+  const urlMonthly = searchParams.get('monthly') ?? ''
+
+  //validate and set safe default
+  const valPrincipal = checkPrincipalURL(urlPrincipal) === '' ? urlPrincipal : ''
+  const valAPR = checkAPRURL(urlAPR) === '' ? urlAPR : ''
+  const valMonthly = checkMonthlyURL(urlMonthly, valPrincipal, valAPR) === '' ? urlMonthly : ''
+  
+  const [principal, setPrincipal] = useState(valPrincipal)
+  const [interest, setInterest] = useState(valAPR)
+  const [monthly, setMonthly] = useState(valMonthly)
 
   const principalNum = Number(principal)
   const interestNum = Number(interest)
@@ -31,7 +126,7 @@ export default function App() {
     else if (principalNum < 1 || principalNum > 100000000) {
       principalError = 'The starting principal must be between $1 to $100,000,000.'
     }
-    else if (monthly.trim() === '') {
+    else if (principal.trim() === '') {
       principalError = ''
     }
   }
@@ -68,7 +163,6 @@ export default function App() {
     }
   }
   
-
   const handlePrincipalChange = (e) => {
     setPrincipal(e.target.value);
   };
