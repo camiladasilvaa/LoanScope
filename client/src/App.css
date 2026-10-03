@@ -198,6 +198,7 @@
 
 .schedule-table table {
   width: 100%;
+  max-width: 1300px;
 }
 
 .schedule-table table tr {
@@ -212,4 +213,14 @@
 
 .share-container {
   margin-bottom: 15px;
+}
+.disclaimer-container {
+  width: 100%;
+  max-width: 1280px;
+  border: 1px solid black;
+  padding-left: 20px;
+  margin-top: 25px;
+  margin-bottom: 30px;
+  border-radius: 5px;
+  background-color: rgb(237, 221, 252);
 }

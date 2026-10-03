@@ -245,34 +245,38 @@ export default function App() {
     <main>
  
     <h1>LoanScope</h1>
+
+    <div className='disclaimer-container'>
+      <p>LoanScope's output is an illustrative estimate, not financial advice, and may not exactly match a lender’s actual amortization terms (which can include fees, escrow, or non-monthly compounding)</p>
+    </div>
     
-      <div className='input-container'>
+    <div className='input-container'>
 
-        <InputField
-          id="principal"
-          label="Starting Principal"
-          value={principal}
-          onChange={handlePrincipalChange}
-          error={principalError}
-        />
-        
-        <InputField
-          id="interest"
-          label="Annual Interest Rate"
-          value={interest}
-          onChange={handleInterestChange}
-          error={interestError}
-        />
+      <InputField
+        id="principal"
+        label="Starting Principal"
+        value={principal}
+        onChange={handlePrincipalChange}
+        error={principalError}
+      />
+      
+      <InputField
+        id="interest"
+        label="Annual Interest Rate"
+        value={interest}
+        onChange={handleInterestChange}
+        error={interestError}
+      />
 
-        <InputField
-          id="monthly"
-          label="Monthly Payment"
-          value={monthly}
-          onChange={handleMonthlyChange}
-          error={monthlyError}
-        />
-        
-      </div>
+      <InputField
+        id="monthly"
+        label="Monthly Payment"
+        value={monthly}
+        onChange={handleMonthlyChange}
+        error={monthlyError}
+      />
+      
+    </div>
 
       <div className='chart-container'>
 
@@ -299,7 +303,7 @@ export default function App() {
           </div>
         
         </div>
-        
+
         {inputValid && (
           <div className='share-container'>
             <Share principal={principal} apr={interest} monthly={monthly}></Share>

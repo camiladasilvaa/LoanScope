@@ -14,7 +14,6 @@ export default function Share({principal, apr, monthly}) {
     // https://www.geeksforgeeks.org/reactjs/how-to-copy-text-to-the-clipboard-in-react-js/
     navigator.clipboard.writeText(url)
     setCopyURL(true)
-    console.log(url)
   }
 
   return (
