@@ -104,6 +104,13 @@ export default function App() {
   const valPrincipal = checkPrincipalURL(urlPrincipal) === '' ? urlPrincipal : ''
   const valAPR = checkAPRURL(urlAPR) === '' ? urlAPR : ''
   const valMonthly = checkMonthlyURL(urlMonthly, valPrincipal, valAPR) === '' ? urlMonthly : ''
+
+  // invalid or out of range values must be rejected with a visible message rather than corrected without notice
+  let correctedMessage = false
+
+  if ((urlPrincipal !== '' && valPrincipal === '') || (urlAPR !== '' && valAPR === '') || (urlMonthly !== '' && valMonthly === '')) {
+    correctedMessage = true
+  }
   
   const [principal, setPrincipal] = useState(valPrincipal)
   const [interest, setInterest] = useState(valAPR)
@@ -275,6 +282,9 @@ export default function App() {
         onChange={handleMonthlyChange}
         error={monthlyError}
       />
+
+      {correctedMessage && <p className="corrected-message" style={{ color: 'red' }}>Some values loaded in the URL were invalid or out of range and were set to empty string.</p>}
+
       
     </div>
 

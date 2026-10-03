@@ -224,3 +224,7 @@
   border-radius: 5px;
   background-color: rgb(237, 221, 252);
 }
+
+.corrected-message {
+  margin-top: 30px;
+}
