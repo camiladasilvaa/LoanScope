@@ -1,8 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { minPayment } from '../../shared/engine'
 import InputField from './InputField.jsx'
 // import Schedule from './Schedule.jsx'
-import { calculateSchedule } from '../../shared/engine'
 import Chart from './Chart.jsx'
 import Table from './Table.jsx'
 import './App.css'
@@ -116,6 +115,9 @@ export default function App() {
   const [interest, setInterest] = useState(valAPR)
   const [monthly, setMonthly] = useState(valMonthly)
 
+  // for backend
+  const [schedule, setSchedule] = useState(null)
+
   const principalNum = Number(principal)
   const interestNum = Number(interest)
   const monthlyNum = Number(monthly)
@@ -170,6 +172,13 @@ export default function App() {
     
     }
   }
+
+
+  let inputValid = false
+  // need a variable to store whether all 3 inputs are valid
+  if (principalError === '' && interestError === '' && monthlyError === '' && !principalEmpty && !interestEmpty && !monthlyEmpty) {
+    inputValid = true
+  }
   
   const handlePrincipalChange = (e) => {
     setPrincipal(e.target.value);
@@ -182,22 +191,32 @@ export default function App() {
   const handleMonthlyChange = (e) => {
     setMonthly(e.target.value);
   };
+
+  useEffect(() => {
+  if (!inputValid) {
+    setSchedule(null)
+    return
+  }
+
+  // https://www.geeksforgeeks.org/javascript/javascript-fetch-method/
+  fetch('/api/amortization', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ principal: principalNum, apr: interestNum, monthly: monthlyNum }),
+  })
+    .then((response) => response.json())
+    .then((data) => setSchedule(data))
+  }, [inputValid, principalNum, interestNum, monthlyNum])
   
   // const result = calculateSchedule(1000, 12, 400, new Date())
   // console.log(result.payoffDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: '2-digit', year: 'numeric' }))
 
 
-  let inputValid = false
-  // need a variable to store whether all 3 inputs are valid
-  if (principalError === '' && interestError === '' && monthlyError === '' && !principalEmpty && !interestEmpty && !monthlyEmpty) {
-    inputValid = true
-  }
+  // let schedule = null
 
-  let schedule = null
-
-  if (inputValid) {
-    schedule = calculateSchedule(principalNum, interestNum, monthlyNum, new Date())
-  }
+  // if (inputValid) {
+  //   schedule = calculateSchedule(principalNum, interestNum, monthlyNum, new Date())
+  // }
 
   // console.log(schedule)
 
@@ -210,7 +229,7 @@ export default function App() {
 
   if (schedule && schedule.schedule) {
     if (schedule.payoffDate) {
-      payOff = schedule.payoffDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: '2-digit', year: 'numeric' })
+      payOff = new Date(schedule.payoffDate).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: '2-digit', year: 'numeric' })
     }
     else {
       payOff = 'Exceeds 100 years.'
